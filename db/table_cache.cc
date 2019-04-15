@@ -31,9 +31,13 @@ static void UnrefEntry(void* arg1, void* arg2) {
 
 TableCache::TableCache(const std::string& dbname,
                        const Options& options,
-                       int entries)
+                       int entries, 
+                       const std::string& dbname_nvm)
     : env_(options.env),
       dbname_(dbname),
+      ////////////meggie
+      dbname_nvm_(dbname_nvm),
+      ////////////meggie
       options_(options),
       cache_(NewLRUCache(entries)) {
 }
@@ -43,19 +47,31 @@ TableCache::~TableCache() {
 }
 
 Status TableCache::FindTable(uint64_t file_number, uint64_t file_size,
-                             Cache::Handle** handle) {
+                             Cache::Handle** handle, bool nvm_level) {
   Status s;
   char buf[sizeof(file_number)];
   EncodeFixed64(buf, file_number);
   Slice key(buf, sizeof(buf));
   *handle = cache_->Lookup(key);
   if (*handle == nullptr) {
-    std::string fname = TableFileName(dbname_, file_number);
+    /////////////meggie
+    std::string fname;
+    if(nvm_level)
+        fname = TableFileName(dbname_nvm_, file_number);
+    else 
+        fname = TableFileName(dbname_, file_number);
+    /////////////meggie
     RandomAccessFile* file = nullptr;
     Table* table = nullptr;
     s = env_->NewRandomAccessFile(fname, &file);
     if (!s.ok()) {
-      std::string old_fname = SSTTableFileName(dbname_, file_number);
+      /////////////meggie
+      std::string old_fname;
+      if(nvm_level)
+        old_fname = SSTTableFileName(dbname_nvm_, file_number);
+      else 
+      /////////////meggie
+        old_fname = SSTTableFileName(dbname_, file_number);
       if (env_->NewRandomAccessFile(old_fname, &file).ok()) {
         s = Status::OK();
       }
@@ -82,13 +98,16 @@ Status TableCache::FindTable(uint64_t file_number, uint64_t file_size,
 Iterator* TableCache::NewIterator(const ReadOptions& options,
                                   uint64_t file_number,
                                   uint64_t file_size,
+                                  bool nvm_level, 
                                   Table** tableptr) {
   if (tableptr != nullptr) {
     *tableptr = nullptr;
   }
 
   Cache::Handle* handle = nullptr;
-  Status s = FindTable(file_number, file_size, &handle);
+  ////////////meggie
+  Status s = FindTable(file_number, file_size, &handle, nvm_level);
+  ////////////meggie
   if (!s.ok()) {
     return NewErrorIterator(s);
   }
@@ -107,9 +126,12 @@ Status TableCache::Get(const ReadOptions& options,
                        uint64_t file_size,
                        const Slice& k,
                        void* arg,
-                       void (*saver)(void*, const Slice&, const Slice&)) {
+                       void (*saver)(void*, const Slice&, const Slice&),
+                       bool nvm_level) {
   Cache::Handle* handle = nullptr;
-  Status s = FindTable(file_number, file_size, &handle);
+  ////////////meggie
+  Status s = FindTable(file_number, file_size, &handle, nvm_level);
+  ////////////meggie
   if (s.ok()) {
     Table* t = reinterpret_cast<TableAndFile*>(cache_->Value(handle))->table;
     s = t->InternalGet(options, k, arg, saver);

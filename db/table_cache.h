@@ -20,7 +20,10 @@ class Env;
 
 class TableCache {
  public:
-  TableCache(const std::string& dbname, const Options& options, int entries);
+  ////////////////meggie
+  TableCache(const std::string& dbname, const Options& options, int entries, 
+          const std::string& dbname_nvm = "");
+  ////////////////meggie
   ~TableCache();
 
   // Return an iterator for the specified file number (the corresponding
@@ -33,6 +36,7 @@ class TableCache {
   Iterator* NewIterator(const ReadOptions& options,
                         uint64_t file_number,
                         uint64_t file_size,
+                        bool nvm_level,
                         Table** tableptr = nullptr);
 
   // If a seek to internal key "k" in specified file finds an entry,
@@ -42,7 +46,8 @@ class TableCache {
              uint64_t file_size,
              const Slice& k,
              void* arg,
-             void (*handle_result)(void*, const Slice&, const Slice&));
+             void (*handle_result)(void*, const Slice&, const Slice&),
+             bool nvm_level = false);
 
   // Evict any entry for the specified file number
   void Evict(uint64_t file_number);
@@ -50,10 +55,14 @@ class TableCache {
  private:
   Env* const env_;
   const std::string dbname_;
+  ///////////meggie
+  const std::string dbname_nvm_;
+  ///////////meggie
   const Options& options_;
   Cache* cache_;
 
-  Status FindTable(uint64_t file_number, uint64_t file_size, Cache::Handle**);
+  Status FindTable(uint64_t file_number, uint64_t file_size, Cache::Handle**, 
+          bool nvm_level = false);
 };
 
 }  // namespace leveldb

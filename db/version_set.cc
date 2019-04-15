@@ -42,7 +42,14 @@ static double MaxBytesForLevel(const Options* options, int level) {
   // the level-0 compaction threshold based on number of files.
 
   // Result for both level-0 and level-1
-  double result = 10. * 1048576.0;
+  ////////////meggie
+  //double result = 10. * 1048576.0;
+  double result;
+  if(level == 0)
+      result = 128.0 * 1024.0 * 1024.0;
+  else 
+      result = 160.0 * 1024.0 * 1024.0;
+  ////////////meggie
   while (level > 1) {
     result *= 10;
     level--;
@@ -235,9 +242,12 @@ void Version::AddIterators(const ReadOptions& options,
                            std::vector<Iterator*>* iters) {
   // Merge all level zero files together since they may overlap
   for (size_t i = 0; i < files_[0].size(); i++) {
+    //////////meggie
+    bool nvm_level = true;
     iters->push_back(
-        vset_->table_cache_->NewIterator(
-            options, files_[0][i]->number, files_[0][i]->file_size));
+            vset_->table_cache_->NewIterator(
+                options, files_[0][i]->number, files_[0][i]->file_size), nvm_level);
+    //////////meggie
   }
 
   // For levels > 0, we can use a concatenating iterator that sequentially
@@ -405,8 +415,11 @@ Status Version::Get(const ReadOptions& options,
       saver.ucmp = ucmp;
       saver.user_key = user_key;
       saver.value = value;
+      /////////////meggie
+      bool nvm_level = level < 2? true : false;
       s = vset_->table_cache_->Get(options, f->number, f->file_size,
-                                   ikey, &saver, SaveValue);
+                                   ikey, &saver, SaveValue, nvm_level);
+      /////////////meggie
       if (!s.ok()) {
         return s;
       }
@@ -1175,8 +1188,11 @@ uint64_t VersionSet::ApproximateOffsetOf(Version* v, const InternalKey& ikey) {
         // "ikey" falls in the range for this table.  Add the
         // approximate offset of "ikey" within the table.
         Table* tableptr;
+        /////////////meggie
+        bool nvm_level = level < 2? true : false;
         Iterator* iter = table_cache_->NewIterator(
-            ReadOptions(), files[i]->number, files[i]->file_size, &tableptr);
+            ReadOptions(), files[i]->number, files[i]->file_size, , nvm_level, &tableptr);
+        /////////////meggie
         if (tableptr != nullptr) {
           result += tableptr->ApproximateOffsetOf(ikey.Encode());
         }
@@ -1276,8 +1292,11 @@ Iterator* VersionSet::MakeInputIterator(Compaction* c) {
       if (c->level() + which == 0) {
         const std::vector<FileMetaData*>& files = c->inputs_[which];
         for (size_t i = 0; i < files.size(); i++) {
+          /////////////meggie
+          bool nvm_level = (c->level() + which) < 2? true : false;
           list[num++] = table_cache_->NewIterator(
-              options, files[i]->number, files[i]->file_size);
+                  options, files[i]->number, files[i]->file_size, nvm_level);
+          /////////////meggie
         }
       } else {
         // Create concatenating iterator for the files from this level

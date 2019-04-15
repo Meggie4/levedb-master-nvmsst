@@ -252,7 +252,9 @@ class Repairer {
     // on checksum verification.
     ReadOptions r;
     r.verify_checksums = options_.paranoid_checks;
-    return table_cache_->NewIterator(r, meta.number, meta.file_size);
+    //////////////meggie
+    return table_cache_->NewIterator(r, meta.number, meta.file_size, false);
+    //////////////meggie
   }
 
   void ScanTable(uint64_t number) {
