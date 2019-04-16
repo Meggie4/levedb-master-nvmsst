@@ -20,7 +20,7 @@ namespace leveldb {
 // parameters set via options.
 namespace config {
 ////////meggie
-static const int kNumLevels = 4;
+static const int kNumLevels = 5;
 //static const int kNumLevels = 7;
 ////////meggie
 

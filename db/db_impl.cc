@@ -284,16 +284,20 @@ void DBImpl::DeleteObsoleteFiles() {
         if (type == kTableFile) {
           table_cache_->Evict(number);
         }
-        Log(options_.info_log, "Delete type=%d #%lld\n",
-            static_cast<int>(type),
-            static_cast<unsigned long long>(number));
         /////////////////meggie
         if(find(filenames_nvm.begin(), filenames_nvm.end(), filenames[i]) != filenames_nvm.end()){
+            Log(options_.info_log, "Delete nvm type=%d #%lld\n",
+                static_cast<int>(type),
+                static_cast<unsigned long long>(number));
             env_->DeleteFile(dbname_nvm_ + "/" + filenames[i]);
         }
-        else  
+        else { 
+            Log(options_.info_log, "Delete ssd type=%d #%lld\n",
+                static_cast<int>(type),
+                static_cast<unsigned long long>(number));
         /////////////////meggie
             env_->DeleteFile(dbname_ + "/" + filenames[i]);
+        }
       }
     }
   }
@@ -756,7 +760,11 @@ void DBImpl::BackgroundCompaction() {
   Status status;
   if (c == nullptr) {
     // Nothing to do
-  } else if (!is_manual && c->IsTrivialMove()) {
+  } else if (!is_manual &&
+          //////////meggie
+          (c->level() != 1) &&
+          //////////meggie
+          c->IsTrivialMove()) {
     // Move file to next level
     assert(c->num_input_files(0) == 1);
     FileMetaData* f = c->input(0, 0);
@@ -854,6 +862,12 @@ Status DBImpl::OpenCompactionOutputFile(CompactionState* compact) {
       fname = TableFileName(dbname_, file_number);
   Status s = env_->NewWritableFile(fname, &compact->outfile);
   if (s.ok()) {
+    //////////meggie
+    if(options_.compression == kSnappyCompression)
+        Log(options_.info_log, "compression type:kSnappyCompression\n");
+    else 
+        Log(options_.info_log, "compression type:kNoCompression\n");
+    //////////meggie
     compact->builder = new TableBuilder(options_, compact->outfile);
   }
   return s;
@@ -1623,7 +1637,7 @@ Status DestroyDB(const std::string& dbname, const Options& options, const std::s
         Status del;
         /////////////////meggie
         if(find(filenames_nvm.begin(), filenames_nvm.end(), filenames[i]) != filenames_nvm.end()){
-            fprintf(stderr, "nvm filenames:%s, delete\n", filenames[i].c_str());
+            //fprintf(stderr, "nvm filenames:%s, delete\n", filenames[i].c_str());
             del = env->DeleteFile(dbname_nvm + "/" + filenames[i]);
         }
         else
