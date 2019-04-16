@@ -12,16 +12,19 @@
 namespace leveldb {
 
 namespace {
-
-typedef Iterator* (*BlockFunction)(void*, const ReadOptions&, const Slice&);
+////////////meggie
+typedef Iterator* (*BlockFunction)(void*, const ReadOptions&, const Slice&, bool nvm_level);
+////////////meggie
 
 class TwoLevelIterator: public Iterator {
- public:
+ public: 
+  //////////////meggie
   TwoLevelIterator(
     Iterator* index_iter,
     BlockFunction block_function,
     void* arg,
-    const ReadOptions& options);
+    const ReadOptions& options, bool nvm_level = false);
+  //////////////meggie
 
   virtual ~TwoLevelIterator();
 
@@ -65,6 +68,9 @@ class TwoLevelIterator: public Iterator {
   BlockFunction block_function_;
   void* arg_;
   const ReadOptions options_;
+  ///////////meggie
+  bool nvm_level_;
+  ///////////meggie
   Status status_;
   IteratorWrapper index_iter_;
   IteratorWrapper data_iter_; // May be nullptr
@@ -77,12 +83,16 @@ TwoLevelIterator::TwoLevelIterator(
     Iterator* index_iter,
     BlockFunction block_function,
     void* arg,
-    const ReadOptions& options)
+    const ReadOptions& options, 
+    bool nvm_level)
     : block_function_(block_function),
       arg_(arg),
       options_(options),
       index_iter_(index_iter),
-      data_iter_(nullptr) {
+      data_iter_(nullptr),
+      //////////////meggie        
+      nvm_level_(nvm_level){
+      //////////////meggie 
 }
 
 TwoLevelIterator::~TwoLevelIterator() {
@@ -162,7 +172,9 @@ void TwoLevelIterator::InitDataBlock() {
       // data_iter_ is already constructed with this iterator, so
       // no need to change anything
     } else {
-      Iterator* iter = (*block_function_)(arg_, options_, handle);
+      /////////////meggie
+      Iterator* iter = (*block_function_)(arg_, options_, handle, nvm_level_);
+      /////////////meggie
       data_block_handle_.assign(handle.data(), handle.size());
       SetDataIterator(iter);
     }
@@ -171,12 +183,14 @@ void TwoLevelIterator::InitDataBlock() {
 
 }  // namespace
 
+//////////meggie
 Iterator* NewTwoLevelIterator(
     Iterator* index_iter,
     BlockFunction block_function,
     void* arg,
-    const ReadOptions& options) {
-  return new TwoLevelIterator(index_iter, block_function, arg, options);
+    const ReadOptions& options, bool nvm_level) {
+  return new TwoLevelIterator(index_iter, block_function, arg, options, nvm_level);
 }
+//////////meggie
 
 }  // namespace leveldb

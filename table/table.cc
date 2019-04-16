@@ -156,9 +156,12 @@ static void ReleaseBlock(void* arg, void* h) {
 
 // Convert an index iterator value (i.e., an encoded BlockHandle)
 // into an iterator over the contents of the corresponding block.
+///////////////meggie
 Iterator* Table::BlockReader(void* arg,
                              const ReadOptions& options,
-                             const Slice& index_value) {
+                             const Slice& index_value, 
+                             bool nvm_level) {
+///////////////meggie
   Table* table = reinterpret_cast<Table*>(arg);
   Cache* block_cache = table->rep_->options.block_cache;
   Block* block = nullptr;

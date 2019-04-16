@@ -20,14 +20,21 @@ struct ReadOptions;
 //
 // Uses a supplied function to convert an index_iter value into
 // an iterator over the contents of the corresponding block.
+
+////////////meggie
 Iterator* NewTwoLevelIterator(
     Iterator* index_iter,
     Iterator* (*block_function)(
         void* arg,
         const ReadOptions& options,
-        const Slice& index_value),
+        const Slice& index_value, 
+        bool nvm_level
+        ),
     void* arg,
-    const ReadOptions& options);
+    const ReadOptions& options,
+    bool nvm_level = false
+    );
+//////////meggie
 
 }  // namespace leveldb
 

@@ -219,7 +219,7 @@ class Version::LevelFileNumIterator : public Iterator {
 
 static Iterator* GetFileIterator(void* arg,
                                  const ReadOptions& options,
-                                 const Slice& file_value) {
+                                 const Slice& file_value, bool nvm_level = false) {
   TableCache* cache = reinterpret_cast<TableCache*>(arg);
   if (file_value.size() != 16) {
     return NewErrorIterator(
@@ -227,15 +227,18 @@ static Iterator* GetFileIterator(void* arg,
   } else {
     return cache->NewIterator(options,
                               DecodeFixed64(file_value.data()),
-                              DecodeFixed64(file_value.data() + 8));
+                              DecodeFixed64(file_value.data() + 8), nvm_level);
   }
 }
 
 Iterator* Version::NewConcatenatingIterator(const ReadOptions& options,
                                             int level) const {
+  ////////meggie
+  bool nvm_level = level<2? true: false;
+  ////////meggie
   return NewTwoLevelIterator(
       new LevelFileNumIterator(vset_->icmp_, &files_[level]),
-      &GetFileIterator, vset_->table_cache_, options);
+      &GetFileIterator, vset_->table_cache_, options, nvm_level);
 }
 
 void Version::AddIterators(const ReadOptions& options,
@@ -246,7 +249,7 @@ void Version::AddIterators(const ReadOptions& options,
     bool nvm_level = true;
     iters->push_back(
             vset_->table_cache_->NewIterator(
-                options, files_[0][i]->number, files_[0][i]->file_size), nvm_level);
+                options, files_[0][i]->number, files_[0][i]->file_size, nvm_level));
     //////////meggie
   }
 
@@ -1191,7 +1194,7 @@ uint64_t VersionSet::ApproximateOffsetOf(Version* v, const InternalKey& ikey) {
         /////////////meggie
         bool nvm_level = level < 2? true : false;
         Iterator* iter = table_cache_->NewIterator(
-            ReadOptions(), files[i]->number, files[i]->file_size, , nvm_level, &tableptr);
+            ReadOptions(), files[i]->number, files[i]->file_size, nvm_level, &tableptr);
         /////////////meggie
         if (tableptr != nullptr) {
           result += tableptr->ApproximateOffsetOf(ikey.Encode());
@@ -1300,9 +1303,12 @@ Iterator* VersionSet::MakeInputIterator(Compaction* c) {
         }
       } else {
         // Create concatenating iterator for the files from this level
+        ////////////meggie
+        bool nvm_level = (c->level() + which) < 2? true : false;
+        ////////////meggie
         list[num++] = NewTwoLevelIterator(
             new Version::LevelFileNumIterator(icmp_, &c->inputs_[which]),
-            &GetFileIterator, table_cache_, options);
+            &GetFileIterator, table_cache_, options, nvm_level);
       }
     }
   }
