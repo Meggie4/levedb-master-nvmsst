@@ -4,19 +4,19 @@
 NUMTHREAD=1
 #BENCHMARKS="fillseq"
 
-#BENCHMARKS="customedworkloadzip099write,customedworkloadzip080write,\
-#customedworkloaduniformwrite,customedworkloadzip099_4kwrite,\
-#customedworkloadzip080_4kwrite,customedworkloaduniform_4kwrite,\
-#customedworkloadzip099writemid,customedworkloadzip080writemid,\
-#customedworkloaduniformwritemid,customedworkloadzip099_4kwritemid,\
-#customedworkloadzip080_4kwritemid,customedworkloaduniform_4kwritemid"
+BENCHMARKS="customedworkloadzip099write,customedworkloadzip080write,\
+customedworkloaduniformwrite,customedworkloadzip099_4kwrite,\
+customedworkloadzip080_4kwrite,customedworkloaduniform_4kwrite,\
+customedworkloadzip099writemid,customedworkloadzip080writemid,\
+customedworkloaduniformwritemid,customedworkloadzip099_4kwritemid,\
+customedworkloadzip080_4kwritemid,customedworkloaduniform_4kwritemid"
 
-BENCHMARKS="customedworkloadzip099writelarge,\
-customedworkloadzip080writelarge,\
-customedworkloaduniformwritelarge,\
-customedworkloadzip099_4kwritelarge,\
-customedworkloadzip080_4kwritelarge,\
-customedworkloaduniform_4kwritelarge"
+#BENCHMARKS="customedworkloadzip099writelarge,\
+#customedworkloadzip080writelarge,\
+#customedworkloaduniformwritelarge,\
+#customedworkloadzip099_4kwritelarge,\
+#customedworkloadzip080_4kwritelarge,\
+#customedworkloaduniform_4kwritelarge"
 
 #BENCHMARKS="customedworkloadzip099write"
 #BENCHMARKS="customedworkloadzip080write"
