@@ -40,8 +40,8 @@ static const int kL0_StopWritesTrigger = 12;
 // the largest level since that can generate a lot of wasted disk
 // space if the same key space is being repeatedly overwritten.
 /////////////meggie
-static const int kMaxMemCompactLevel = 1;
-//static const int kMaxMemCompactLevel = 2;
+//static const int kMaxMemCompactLevel = 1;
+static const int kMaxMemCompactLevel = 2;
 /////////////meggie
 
 // Approximate gap in bytes between samples of data read during iteration.

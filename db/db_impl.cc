@@ -762,13 +762,15 @@ void DBImpl::BackgroundCompaction() {
     // Nothing to do
   } else if (!is_manual &&
           //////////meggie
-          (c->level() != 1) &&
+          (c->level() != 2) &&
           //////////meggie
           c->IsTrivialMove()) {
     // Move file to next level
     assert(c->num_input_files(0) == 1);
     FileMetaData* f = c->input(0, 0);
     c->edit()->DeleteFile(c->level(), f->number);
+    Log(options_.info_log, "deletefile:%lld, c->level:%d\n",
+            f->number, c->level());
     c->edit()->AddFile(c->level() + 1, f->number, f->file_size,
                        f->smallest, f->largest);
     status = versions_->LogAndApply(c->edit(), &mutex_);
@@ -855,7 +857,7 @@ Status DBImpl::OpenCompactionOutputFile(CompactionState* compact) {
   //////////////meggie
   int level = compact->compaction->level() + 1;
   std::string fname;
-  if(level < 2)
+  if(level < 3)
       fname = TableFileName(dbname_nvm_, file_number);
   else 
   //////////////meggie
@@ -910,7 +912,7 @@ Status DBImpl::FinishCompactionOutputFile(CompactionState* compact,
     // Verify that the table is usable
     /////////////meggie
     int level = compact->compaction->level() + 1; 
-    bool nvm_level = level < 2? true : false;
+    bool nvm_level = level < 3? true : false;
     Iterator* iter = table_cache_->NewIterator(ReadOptions(),
                                                output_number,
                                                current_bytes, 
