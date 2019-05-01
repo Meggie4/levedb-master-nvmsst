@@ -9,6 +9,8 @@
 #include "leveldb/iterator.h"
 #include "util/coding.h"
 
+#include <string>
+#include "util/debug.h"
 namespace leveldb {
 
 static Slice GetLengthPrefixedSlice(const char* data) {
@@ -87,6 +89,11 @@ void MemTable::Add(SequenceNumber s, ValueType type,
   //  key bytes    : char[internal_key.size()]
   //  value_size   : varint32 of value.size()
   //  value bytes  : char[value.size()]
+
+  std::string mystring = "user2263969749913208119";
+  if(key.ToString().compare(mystring) == 0){
+     DEBUG_T("user2263969749913208119 now is in MemTable\n");
+  }
   size_t key_size = key.size();
   size_t val_size = value.size();
   size_t internal_key_size = key_size + 8;

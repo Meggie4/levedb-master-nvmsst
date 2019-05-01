@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 #include <cstdlib>
 #include <iostream>
+#include <string>
 ///////////meggie
 #include "leveldb/cache.h"
 #include "leveldb/db.h"
@@ -251,8 +252,7 @@ class WorkloadGenerator{
         key = getData();
         value = getData();
         return Status::OK();
-    }
-    else if(isValid(*type) && (*type == 'r')){
+    }else if(isValid(*type) && (*type == 'r')){
         key = getData();
         return Status::OK();
     }else
@@ -1239,17 +1239,22 @@ class Benchmark {
       std::string key;
       std::string value;
       int found = 0;
+      int total = 0;
       ReadOptions options;
       std::string read_value;
+      db_->PrintNVMLevelFiles();
       while(wlgnerator.getRequest(&type, key, value).ok()){
+        //fprintf(stderr, "to found key:%s\n", key.c_str());
         if(db_->Get(options, key, &read_value).ok()) {
             found++;
+        } else {
+            fprintf(stderr, "key:%s not found\n", key.c_str());
         }
+        total++;
         thread->stats.FinishedSingleOp();
-        break;
       }
       char msg[100];
-      snprintf(msg, sizeof(msg), "(%d found)", found);
+      snprintf(msg, sizeof(msg), "(%d/%d found)", found, total);
       thread->stats.AddMessage(msg);
   } 
   
@@ -1410,11 +1415,12 @@ class Benchmark {
     int batch_num = 0;
     //size_t count = 0;
     while(wlgnerator.getRequest(&type, key, value).ok()){
-        if(batch_num < entries_per_batch_){
-            batch.Put(key, value);
-            batch_num++;
-        }
-        else{
+        std::string mystring = "user2263969749913208119";
+        if(key.compare(mystring) == 0)
+            fprintf(stderr, "insert user2263969749913208119\n");
+        batch.Put(key, value);
+        batch_num++;
+        if(batch_num >= entries_per_batch_){
             s = db_->Write(write_options_, &batch);
             if (!s.ok()) {
                 fprintf(stderr, "put error: %s\n", s.ToString().c_str());
@@ -1422,13 +1428,13 @@ class Benchmark {
             }
             batch.Clear();
             batch.Put(key, value);
-            batch_num = 1;
+            batch_num = 0;
         }
         bytes += value.size() + key.size();
         thread->stats.FinishedSingleOp();
         //count++;
     }
-    //fprintf(stderr, "add kv pair:%lu, bytes:%lu\n", count, bytes);
+    fprintf(stderr, "batch_num:%d\n", batch_num);
     thread->stats.AddBytes(bytes);
   }
   //////////////meggie

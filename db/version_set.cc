@@ -18,6 +18,8 @@
 #include "util/coding.h"
 #include "util/logging.h"
 
+#include "util/debug.h"
+
 namespace leveldb {
 
 static size_t TargetFileSize(const Options* options) {
@@ -229,7 +231,7 @@ static Iterator* GetFileIterator(void* arg,
 Iterator* Version::NewConcatenatingIterator(const ReadOptions& options,
                                             int level) const {
   ////////meggie
-  bool nvm_level = level<2? true: false;
+  bool nvm_level = level<3? true: false;
   ////////meggie
   return NewTwoLevelIterator(
       new LevelFileNumIterator(vset_->icmp_, &files_[level]),
@@ -336,6 +338,20 @@ void Version::ForEachOverlapping(Slice user_key, Slice internal_key,
     }
   }
 }
+////////////meggie
+void Version::PrintNVMLevelFiles(){
+  for (int level = 0; level < 3; level++) {
+    size_t num_files = files_[level].size();
+    DEBUG_T("level%d:", level);
+    for (uint32_t i = 0; i < num_files; ++i) {
+        FileMetaData* f = files_[level][i];
+        DEBUG_T("%lld ", f->number);
+    }   
+    DEBUG_T("\n");
+  }
+}
+////////////meggie
+
 
 Status Version::Get(const ReadOptions& options,
                     const LookupKey& k,
@@ -414,11 +430,12 @@ Status Version::Get(const ReadOptions& options,
       saver.user_key = user_key;
       saver.value = value;
       /////////////meggie
-      bool nvm_level = level < 2? true : false;
+      bool nvm_level = level < 3? true : false;
       s = vset_->table_cache_->Get(options, f->number, f->file_size,
                                    ikey, &saver, SaveValue, nvm_level);
       /////////////meggie
       if (!s.ok()) {
+        DEBUG_T("TableCache get failed\n");
         return s;
       }
       switch (saver.state) {
@@ -427,6 +444,7 @@ Status Version::Get(const ReadOptions& options,
         case kFound:
           return s;
         case kDeleted:
+          DEBUG_T("has been delete\n");
           s = Status::NotFound(Slice());  // Use empty error message for speed
           return s;
         case kCorrupt:
@@ -436,6 +454,7 @@ Status Version::Get(const ReadOptions& options,
     }
   }
 
+  DEBUG_T("Not Found, key %s\n", user_key.ToString().c_str());
   return Status::NotFound(Slice());  // Use an empty error message for speed
 }
 
@@ -1187,7 +1206,7 @@ uint64_t VersionSet::ApproximateOffsetOf(Version* v, const InternalKey& ikey) {
         // approximate offset of "ikey" within the table.
         Table* tableptr;
         /////////////meggie
-        bool nvm_level = level < 2? true : false;
+        bool nvm_level = level < 3? true : false;
         Iterator* iter = table_cache_->NewIterator(
             ReadOptions(), files[i]->number, files[i]->file_size, nvm_level, &tableptr);
         /////////////meggie
@@ -1291,7 +1310,7 @@ Iterator* VersionSet::MakeInputIterator(Compaction* c) {
         const std::vector<FileMetaData*>& files = c->inputs_[which];
         for (size_t i = 0; i < files.size(); i++) {
           /////////////meggie
-          bool nvm_level = (c->level() + which) < 2? true : false;
+          bool nvm_level = (c->level() + which) < 3? true : false;
           list[num++] = table_cache_->NewIterator(
                   options, files[i]->number, files[i]->file_size, nvm_level);
           /////////////meggie
@@ -1299,7 +1318,7 @@ Iterator* VersionSet::MakeInputIterator(Compaction* c) {
       } else {
         // Create concatenating iterator for the files from this level
         ////////////meggie
-        bool nvm_level = (c->level() + which) < 2? true : false;
+        bool nvm_level = (c->level() + which) < 3? true : false;
         ////////////meggie
         list[num++] = NewTwoLevelIterator(
             new Version::LevelFileNumIterator(icmp_, &c->inputs_[which]),

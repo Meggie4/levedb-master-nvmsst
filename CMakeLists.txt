@@ -159,6 +159,10 @@ target_sources(leveldb
     "${PROJECT_SOURCE_DIR}/util/options.cc"
     "${PROJECT_SOURCE_DIR}/util/random.h"
     "${PROJECT_SOURCE_DIR}/util/status.cc"
+    #########meggie
+    "${PROJECT_SOURCE_DIR}/util/debug.cc"
+    "${PROJECT_SOURCE_DIR}/util/debug.h"
+    #########meggie
 
   # Only CMake 3.3+ supports PUBLIC sources in targets exported by "install".
   $<$<VERSION_GREATER:CMAKE_VERSION,3.2>:PUBLIC>

@@ -197,6 +197,8 @@ cstdlib
 -
 iostream
 -
+string
+-
 leveldb/cache.h
 /home/meggie/文档/leveldb-master-nvmsst/db/leveldb/cache.h
 leveldb/db.h

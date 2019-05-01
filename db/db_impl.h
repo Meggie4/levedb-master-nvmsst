@@ -63,6 +63,9 @@ class DBImpl : public DB {
   // Samples are taken approximately once every config::kReadBytesPeriod
   // bytes.
   void RecordReadSample(Slice key);
+  //////////meggie
+  void PrintNVMLevelFiles();
+  //////////meggie
 
  private:
   friend class DB;

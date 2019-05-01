@@ -72,6 +72,9 @@ class Version {
   Status Get(const ReadOptions&, const LookupKey& key, std::string* val,
              GetStats* stats);
 
+  ///////////meggie
+  void PrintNVMLevelFiles();
+  ///////////meggie
   // Adds "stats" into the current state.  Returns true if a new
   // compaction may need to be triggered, false otherwise.
   // REQUIRES: lock is held
@@ -197,6 +200,7 @@ class VersionSet {
       next_file_number_ = file_number;
     }
   }
+
 
   // Return the number of Table files at the specified level.
   int NumLevelFiles(int level) const;

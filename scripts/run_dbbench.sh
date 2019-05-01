@@ -58,6 +58,8 @@ NUMTHREAD=1
 
 #for read, to load first
 BENCHMARKS="loadzip1k_500k,readzip1k_500k"
+#BENCHMARKS="readzip1k_500k"
+
 #BENCHMARKS="loadzip1k_1000k,readzip1k_500k"
 #BENCHMARKS="loadzip1k_1000k,readzip1k_500k"
 

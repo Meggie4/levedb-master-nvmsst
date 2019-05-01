@@ -35,6 +35,8 @@
 #include "util/logging.h"
 #include "util/mutexlock.h"
 
+#include "util/debug.h"
+#include <string>
 namespace leveldb {
 
 const int kNumNonTableCacheFiles = 10;
@@ -864,12 +866,6 @@ Status DBImpl::OpenCompactionOutputFile(CompactionState* compact) {
       fname = TableFileName(dbname_, file_number);
   Status s = env_->NewWritableFile(fname, &compact->outfile);
   if (s.ok()) {
-    //////////meggie
-    if(options_.compression == kSnappyCompression)
-        Log(options_.info_log, "compression type:kSnappyCompression\n");
-    else 
-        Log(options_.info_log, "compression type:kNoCompression\n");
-    //////////meggie
     compact->builder = new TableBuilder(options_, compact->outfile);
   }
   return s;
@@ -982,6 +978,7 @@ Status DBImpl::DoCompactionWork(CompactionState* compact) {
   ParsedInternalKey ikey;
   std::string current_user_key;
   bool has_current_user_key = false;
+  bool first = true;
   SequenceNumber last_sequence_for_key = kMaxSequenceNumber;
   for (; input->Valid() && !shutting_down_.Acquire_Load(); ) {
     // Prioritize immutable compaction work
@@ -1063,6 +1060,17 @@ Status DBImpl::DoCompactionWork(CompactionState* compact) {
         compact->current_output()->smallest.DecodeFrom(key);
       }
       compact->current_output()->largest.DecodeFrom(key);
+      //////////meggie
+      if(first){
+        DEBUG_T("ikey.user_key:%s\n", ikey.user_key.ToString().c_str());
+        first = false;
+      }
+      std::string mystring = "user2263969749913208119";
+      if(ikey.user_key.ToString().compare(mystring) == 0){
+        DEBUG_T("user2263969749913208119 now is in file:%lld\n", 
+                compact->current_output()->number);
+      }
+      //////////meggie
       compact->builder->Add(key, input->value());
 
       // Close output file if it is big enough
@@ -1178,6 +1186,13 @@ int64_t DBImpl::TEST_MaxNextLevelOverlappingBytes() {
   return versions_->MaxNextLevelOverlappingBytes();
 }
 
+///////////////meggie
+void DBImpl::PrintNVMLevelFiles(){
+  Version* current = versions_->current();
+  current->PrintNVMLevelFiles();
+}
+///////////////meggie
+
 Status DBImpl::Get(const ReadOptions& options,
                    const Slice& key,
                    std::string* value) {
@@ -1218,6 +1233,7 @@ Status DBImpl::Get(const ReadOptions& options,
   }
 
   if (have_stat_update && current->UpdateStats(stats)) {
+    DEBUG_T("start seek compaction\n");
     MaybeScheduleCompaction();
   }
   mem->Unref();

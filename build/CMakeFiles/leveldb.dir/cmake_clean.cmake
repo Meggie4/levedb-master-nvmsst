@@ -35,6 +35,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/leveldb.dir/util/logging.cc.o"
   "CMakeFiles/leveldb.dir/util/options.cc.o"
   "CMakeFiles/leveldb.dir/util/status.cc.o"
+  "CMakeFiles/leveldb.dir/util/debug.cc.o"
   "CMakeFiles/leveldb.dir/util/env_posix.cc.o"
   "CMakeFiles/leveldb.dir/helpers/memenv/memenv.cc.o"
   "libleveldb.pdb"

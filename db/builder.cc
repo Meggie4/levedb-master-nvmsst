@@ -12,6 +12,9 @@
 #include "leveldb/env.h"
 #include "leveldb/iterator.h"
 
+#include "util/debug.h"
+#include <string>
+
 namespace leveldb {
 
 Status BuildTable(const std::string& dbname_nvm,
@@ -39,6 +42,14 @@ Status BuildTable(const std::string& dbname_nvm,
     for (; iter->Valid(); iter->Next()) {
       Slice key = iter->key();
       meta->largest.DecodeFrom(key);
+      //////////meggie
+      Slice user_key = Slice(key.data(), key.size() - 8);
+      std::string mystring = "user2263969749913208119";
+      if(user_key.ToString().compare(mystring) == 0){
+        DEBUG_T("user2263969749913208119 now is in file:%lld\n", 
+                meta->number);
+      }
+      //////////meggie
       builder->Add(key, iter->value());
     }
 
