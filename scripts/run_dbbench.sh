@@ -50,16 +50,16 @@ NUMTHREAD=2
 #BENCHMARKS="customedzip1k_2000k"
 #BENCHMARKS="customedzip1k_3000k"
 #BENCHMARKS="customed12zip1k_1000k"
-BENCHMARKS="customed12zip1k_2000k"
+#BENCHMARKS="customed12zip1k_2000k"
 #BENCHMARKS="customed12zip1k_3000k"
-#BENCHMARKS="customeduniform256_1000k"
-#BENCHMARKS="customeduniform256_5000k"
-#BENCHMARKS="customeduniform256_10000k"
+#BENCHMARKS="customeduniform1k_1000k"
+#BENCHMARKS="customeduniform1k_2000k"
+#BENCHMARKS="customeduniform1k_3000k"
 
 #for read, to load first
 #BENCHMARKS="loadzip1k_500k,readzip1k_500k"
 #BENCHMARKS="loadzip1k_1000k,readzip1k_1000k"
-#BENCHMARKS="loadzip1k_2000k,readzip1k_2000k"
+BENCHMARKS="loadzip1k_2000k,readzip1k_2000k"
 #BENCHMARKS="loadzip1k_2000k"
 
 #NoveLSM specific parameters

@@ -798,19 +798,15 @@ class Benchmark {
         entries_per_batch_ = 1000;
         fresh_db = true;
         method = &Benchmark::CustomedWorkloadUniform4k_1000k;
-      //////////for 256B
-      } else if(name == Slice("customeduniform256_1000k")) {
+      //////////for uniform
+      } else if(name == Slice("customeduniform1k_2000k")) {
         entries_per_batch_ = 1000;
         fresh_db = true;
-        method = &Benchmark::CustomedWorkloadUniform256_1000k;
-      } else if(name == Slice("customeduniform256_5000k")) {
+        method = &Benchmark::CustomedWorkloadUniform1k_2000k;
+      } else if(name == Slice("customeduniform1k_3000k")) {
         entries_per_batch_ = 1000;
         fresh_db = true;
-        method = &Benchmark::CustomedWorkloadUniform256_5000k;
-      } else if(name == Slice("customeduniform256_10000k")) {
-        entries_per_batch_ = 1000;
-        fresh_db = true;
-        method = &Benchmark::CustomedWorkloadUniform256_10000k;
+        method = &Benchmark::CustomedWorkloadUniform1k_3000k;
       //////////////meggie 
       } else {
         if (name != Slice()) {  // No error message for empty name
@@ -1390,17 +1386,13 @@ class Benchmark {
       CustomedWorkloadWrite(thread, fname);
   }
 
-  //////////for 256B
-  void CustomedWorkloadUniform256_1000k(ThreadState* thread){
-      std::string fname = "/mnt/workloads/workloaduniform/runwrite256_1000k.txt"; 
+  //////////for uniform
+  void CustomedWorkloadUniform1k_2000k(ThreadState* thread){
+      std::string fname = "/mnt/workloads/workloaduniform/runwrite1k_2000k.txt"; 
       CustomedWorkloadWrite(thread, fname);
   }
-  void CustomedWorkloadUniform256_5000k(ThreadState* thread){
-      std::string fname = "/mnt/workloads/workloaduniform/runwrite256_5000k.txt"; 
-      CustomedWorkloadWrite(thread, fname);
-  }
-  void CustomedWorkloadUniform256_10000k(ThreadState* thread){
-      std::string fname = "/mnt/workloads/workloaduniform/runwrite256_10000k.txt"; 
+  void CustomedWorkloadUniform1k_3000k(ThreadState* thread){
+      std::string fname = "/mnt/workloads/workloaduniform/runwrite1k_3000k.txt"; 
       CustomedWorkloadWrite(thread, fname);
   }
 
