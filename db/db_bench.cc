@@ -1415,9 +1415,6 @@ class Benchmark {
     int batch_num = 0;
     //size_t count = 0;
     while(wlgnerator.getRequest(&type, key, value).ok()){
-        std::string mystring = "user2263969749913208119";
-        if(key.compare(mystring) == 0)
-            fprintf(stderr, "insert user2263969749913208119\n");
         batch.Put(key, value);
         batch_num++;
         if(batch_num >= entries_per_batch_){
@@ -1427,14 +1424,19 @@ class Benchmark {
                 exit(1);
             }
             batch.Clear();
-            batch.Put(key, value);
             batch_num = 0;
         }
         bytes += value.size() + key.size();
         thread->stats.FinishedSingleOp();
         //count++;
     }
-    fprintf(stderr, "batch_num:%d\n", batch_num);
+    if(batch_num > 0){
+        s = db_->Write(write_options_, &batch);
+        if (!s.ok()) {
+            fprintf(stderr, "put error: %s\n", s.ToString().c_str());
+            exit(1);
+        }
+    }
     thread->stats.AddBytes(bytes);
   }
   //////////////meggie
